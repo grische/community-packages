@@ -11,7 +11,7 @@ include $(TOPDIR)/../package/gluon.mk
 
 define Package/ffmuc-mesh-vpn-wireguard-vxlan
   TITLE:=Support for connecting meshes via wireguard
-  DEPENDS:=+gluon-mesh-vpn-core +micrond +kmod-wireguard +wireguard-tools +ip-full
+  DEPENDS:=+gluon-mesh-vpn-core +micrond +kmod-wireguard +wireguard-tools +ip-full +ip6tables-legacy
 endef
 
 $(eval $(call BuildPackageGluon,ffmuc-mesh-vpn-wireguard-vxlan))

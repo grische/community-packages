@@ -108,7 +108,7 @@ if [ "$(uci get wireguard.mesh_vpn.enabled)" == "true" ] || [ "$(uci get wiregua
 		# We need to allow incoming vxlan traffic on mesh iface
 		sleep 10
                 RULE="-i $MESH_VPN_IFACE -m udp -p udp --dport 8472 -j ACCEPT"
-                ip6tables -C INPUT $RULE                                                                                
+                ip6tables-legacy -C INPUT $RULE
                 if [ $? -ne 0 ]; then                                  
                         ip6tables -I INPUT 1 $RULE
                 fi                                                                                                             
