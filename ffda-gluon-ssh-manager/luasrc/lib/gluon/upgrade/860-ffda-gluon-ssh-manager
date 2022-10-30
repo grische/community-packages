@@ -1,0 +1,53 @@
+#!/usr/bin/lua
+
+local uci = require('simple-uci').cursor()
+
+local enabled = uci:get_bool('gluon-ssh-manager', 'settings', 'enabled')
+local group = uci:get('gluon-ssh-manager', 'settings', 'group')
+
+local function file_exists(file)
+	local f = io.open(file)
+	if not f then
+		return false
+	end
+	f:close()
+	return true
+end
+
+-- Abort if disabled or no group set
+if not enabled or group == nil then
+	return
+end
+
+local group_key_path = '/lib/gluon/ssh-manager/groups/' .. group
+local num_keys = 0
+local keys = {}
+
+if not file_exists(group_key_path) then
+	return
+end
+
+-- Add group keys
+for line in io.lines(group_key_path) do
+	table.insert(keys, line)
+	num_keys = num_keys + 1
+end
+
+-- Add additional keys
+for line in io.lines('/lib/gluon/ssh-manager/authorized_keys') do
+	table.insert(keys, line)
+	num_keys = num_keys + 1
+end
+
+-- Skip writing in case we have no keys
+if num_keys < 1 then
+	return
+end
+
+-- Write authorized_keys
+-- Overwrite existing content
+local file = io.open('/etc/dropbear/authorized_keys', 'w')
+for _, key in ipairs(keys) do
+	file:write(key, '\n')
+end
+file:close()
