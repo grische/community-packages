@@ -27,7 +27,6 @@ local group_keys = {}
 if groups ~= nil then
 	for _, group in ipairs(groups) do
 		local group_key_path = '/lib/gluon/ssh-manager/groups/' .. group
-		print(group_key_path)
 
 		if file_exists(group_key_path) then
 			-- Add group keys
