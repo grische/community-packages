@@ -24,18 +24,21 @@ end
 
 local num_group_keys = 0
 local group_keys = {}
-for group in ipairs(groups) do
-	local group_key_path = '/lib/gluon/ssh-manager/groups/' .. group
-	if not file_exists(group_key_path) then
-		return
-	end
+if groups ~= nil then
+	for _, group in ipairs(groups) do
+		local group_key_path = '/lib/gluon/ssh-manager/groups/' .. group
+		print(group_key_path)
 
-	-- Add group keys
-	for line in io.lines(group_key_path) do
-		table.insert(group_keys, line)
-		num_group_keys = num_group_keys + 1
+		if file_exists(group_key_path) then
+			-- Add group keys
+			for line in io.lines(group_key_path) do
+				table.insert(group_keys, line)
+				num_group_keys = num_group_keys + 1
+			end
+		end
 	end
 end
+
 
 -- Read user-keys
 local user_keys = {}
@@ -53,7 +56,7 @@ end
 -- Write authorized_keys
 -- Overwrite existing content
 local file = io.open(dropbear_key_path, 'w')
-for _, key in ipairs(group_keys) do
+for _, key in ipairs(user_keys) do
 	file:write(key, '\n')
 end
 
