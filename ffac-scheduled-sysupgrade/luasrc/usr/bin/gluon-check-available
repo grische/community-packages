@@ -3,6 +3,7 @@
 local unistd = require 'posix.unistd'
 local util = require 'gluon.util'
 local site = require 'gluon.site'
+local log = require 'posix.syslog'
 
 local firmware_flag_file = "/tmp/firmware_available"
 local firmware_available = unistd.access("/tmp/firmware.bin")
@@ -13,24 +14,53 @@ if site.scheduled_sysupgrade() == nil then
 	os.exit(0)
 end
 
+local function capture(cmd, raw)
+	local f = assert(io.popen(cmd, 'r'))
+	local s = assert(f:read('*a'))
+	f:close()
+	if raw then return s end
+	s = string.gsub(s, '^%s+', '')
+	s = string.gsub(s, '%s+$', '')
+	s = string.gsub(s, '[\n\r]+', ' ')
+	return s
+end
+
+local function logger(dest, msg)
+	local prefix = 'ffac-scheduled-sysupgrade: '
+	msg = prefix .. msg
+	if dest == 'out' then
+		io.stdout:write(msg .. '\n')
+		log.syslog(log.LOG_INFO, msg)
+	elseif dest == 'err' then
+		io.stderr:write(msg .. '\n')
+		log.syslog(log.LOG_CRIT, msg)
+	end
+end
+
 local firmware_server = site.scheduled_sysupgrade.firmware_server()
 
 if not firmware_available then
 	local exit_code = os.execute("autoupdater -n " .. firmware_server)
 	if exit_code == 0 and unistd.access("/tmp/firmware.bin") then
+		logger("out", "Downloaded firmware with autoupdater.")
 		firmware_available = true
+	else
+		logger("err", "Downloaded firmware failed: " .. capture("autoupdater -n " .. firmware_server))
 	end
 end
 
 if firmware_available then
 	-- Check if we already have firmware available
 	if unistd.access(firmware_flag_file) then
+		logger("out", firmware_flag_file .. " already available.")
 		os.exit(0)
 	end
 	-- Create firmware available flag
 	local f = io.open(firmware_flag_file, "w")
 	f:write(tostring(util.get_uptime()))
 	f:close()
+	logger("out", "Wrote " .. firmware_flag_file)
 else
+	logger("out", "Deleting " .. firmware_flag_file)
 	os.remove(firmware_flag_file)
 end
