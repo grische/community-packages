@@ -12,7 +12,7 @@ include $(TOPDIR)/../package/gluon.mk
 
 define Package/$(PKG_NAME)
   TITLE:=Allows scheduled sysupgrades from a given firmware server
-  DEPENDS:=+gluon-core
+  DEPENDS:=+gluon-core +gluon-scheduled-domain-switch
 endef
 
 $(eval $(call BuildPackageGluon,$(PKG_NAME)))
