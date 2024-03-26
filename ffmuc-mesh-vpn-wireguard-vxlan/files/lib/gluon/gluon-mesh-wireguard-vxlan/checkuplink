@@ -1,10 +1,10 @@
 #!/bin/sh
 
 if { set -C; 2>/dev/null >/var/lock/checkuplink.lock; }; then
-         trap "rm -f /var/lock/checkuplink.lock" EXIT
+	trap "rm -f /var/lock/checkuplink.lock" EXIT
 else
-         echo "Lock file exists... exiting"
-         exit
+	echo "Lock file exists... exiting"
+	exit
 fi
 
 interface_linklocal() {
@@ -91,7 +91,7 @@ if [ "$(uci get wireguard.mesh_vpn.enabled)" == "true" ] || [ "$(uci get wiregua
 			PROTO=https
 		fi
 		gluon-wan wget -q  -O- --post-data='{"domain": "'"$SEGMENT"'","public_key": "'"$PUBLICKEY"'"}' $PROTO://$(uci get wireguard.mesh_vpn.broker)
-		
+
 		# Bring up the wireguard interface
 		ip link add dev $MESH_VPN_IFACE type wireguard
 		wg set $MESH_VPN_IFACE fwmark 1
@@ -104,15 +104,15 @@ if [ "$(uci get wireguard.mesh_vpn.enabled)" == "true" ] || [ "$(uci get wiregua
 			endpoint=$(uci get wireguard.peer_$PEER.endpoint)
 		fi
 		gluon-wan wg set $MESH_VPN_IFACE peer $(uci get wireguard.peer_$PEER.publickey) persistent-keepalive 25 allowed-ips $(uci get wireguard.peer_$PEER.link_address)/128 endpoint $endpoint
-		
+
 		# We need to allow incoming vxlan traffic on mesh iface
 		sleep 10
-                RULE="-i $MESH_VPN_IFACE -m udp -p udp --dport 8472 -j ACCEPT"
-                ip6tables -C INPUT $RULE                                                                                
-                if [ $? -ne 0 ]; then                                  
-                        ip6tables -I INPUT 1 $RULE
-                fi                                                                                                             
-		
+		RULE="-i $MESH_VPN_IFACE -m udp -p udp --dport 8472 -j ACCEPT"
+		ip6tables -C INPUT $RULE
+		if [ $? -ne 0 ]; then
+				ip6tables -I INPUT 1 $RULE
+		fi
+
 		# Bring up VXLAN
 		ip link add mesh-vpn type vxlan id "$(lua -e 'print(tonumber(require("gluon.util").domain_seed_bytes("gluon-mesh-vpn-vxlan", 3), 16))')" local $(interface_linklocal "$MESH_VPN_IFACE") remote $(uci get wireguard.peer_$PEER.link_address) dstport 8472 dev $MESH_VPN_IFACE
 		ip link set up dev mesh-vpn
