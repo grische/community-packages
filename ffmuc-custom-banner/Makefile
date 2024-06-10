@@ -12,4 +12,4 @@ define Package/$(PKG_NAME)
   DEPENDS:=+gluon-core +lua-jsonc
 endef
 
-$(eval $(call BuildPackageGluon,$(PKG_NAME)))
+$(eval $(call BuildPackage,$(PKG_NAME)))
