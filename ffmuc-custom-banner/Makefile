@@ -8,8 +8,12 @@ PKG_LICENSE:=MIT
 include $(TOPDIR)/../package/gluon.mk
 
 define Package/$(PKG_NAME)
-  TITLE:=Creates a custom SSH login banner
+  TITLE:=Generates a custom SSH login banner
   DEPENDS:=+gluon-core +lua-jsonc
 endef
 
-$(eval $(call BuildPackage,$(PKG_NAME)))
+define Package/ffda-gluon-usteer/description
+  Generates a custom SSH login banner
+endef
+
+$(eval $(call BuildPackageGluon,$(PKG_NAME)))
