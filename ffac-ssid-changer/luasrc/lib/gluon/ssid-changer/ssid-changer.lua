@@ -146,12 +146,10 @@ if has_default_gw4() then
 		elseif gateway_tq < tq_limit_min then
 			link_state = 'OFFLINE'
 		else
-			-- Hysteresis: keep previous link state
-			if offline_minutes > 0 then
-				link_state = 'OFFLINE'
-			else
-				link_state = 'ONLINE'
-			end
+			-- Hysteresis: in between both limits neither the counter nor the
+			-- SSID is touched, so the SSID only changes once the TQ crosses
+			-- tq_limit_min or tq_limit_max
+			link_state = 'UNCHANGED'
 		end
 	else
 		link_state = 'ONLINE'
@@ -178,7 +176,7 @@ if link_state == 'ONLINE' then
 	elseif offline_minutes > 0 then
 		offline_minutes = offline_minutes - 1
 	end
-else
+elseif link_state == 'OFFLINE' then
 	log_debug("node is considered offline")
 	-- the counter is reset when the offline SSID is reverted, so there is no
 	-- need to count while it is set
@@ -208,6 +206,8 @@ else
 		os.execute('wifi reconf')
 		ssid_state = 'OFFLINE'
 	end
+else
+	log_debug("node tq is in between both limits, keeping the current state")
 end
 
 -- Save State
