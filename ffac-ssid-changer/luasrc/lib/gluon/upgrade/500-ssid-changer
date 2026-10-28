@@ -4,7 +4,7 @@ local site = require 'gluon.site'
 
 local uci = require('simple-uci').cursor()
 
-if site.ssid_changer ~= nil then
+if site.ssid_changer() ~= nil then
 	local site_enabled = site.ssid_changer.enabled(true)
 
 	uci:section('ssid-changer', 'settings', 'settings', {
@@ -17,7 +17,8 @@ if site.ssid_changer ~= nil then
 		tq_limit_min      = site.ssid_changer.tq_limit_min() or 35,
 		debug_log_enabled = site.ssid_changer.debug_log_enabled() or false,
 	})
-	uci:delete('ssid-changer', 'settings', 'first')
-	uci:delete('ssid-changer', 'settings', 'prefix_owe')
-	uci:save('ssid-changer')
 end
+
+uci:delete('ssid-changer', 'settings', 'first')
+uci:delete('ssid-changer', 'settings', 'prefix_owe')
+uci:save('ssid-changer')
