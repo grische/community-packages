@@ -48,6 +48,7 @@ Adapt and add this block to your `site.conf`:
                                 -- set to 1440 to change after half a day offline
                                 -- set to 1 minute to change every time the router gets offline
       prefix = 'FF_Offline_',   -- use something short to leave space for the nodename (no '~' allowed!)
+                                -- at most 26 bytes with suffix 'nodename', 20 with 'mac' and 32 with 'none'
       suffix = 'nodename',      -- generate the SSID with either 'nodename', 'mac' or to use only the prefix: 'none'
 
       tq_limit_enabled = false, -- if false, the offline SSID will only be set if there is no gateway reachable
