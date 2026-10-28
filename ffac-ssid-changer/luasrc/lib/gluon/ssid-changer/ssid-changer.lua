@@ -121,7 +121,7 @@ local function has_default_gw4()
 end
 
 local function get_gateway_tq()
-	local handle = io.popen('batctl gwl -H | grep -e "^\\*" | awk -F"[()]" "{print $2}" | tr -d " "')
+	local handle = io.popen("batctl gwl -H | grep -e '^\\*' | awk -F'[()]' '{print $2}' | tr -d ' '")
 	local result = handle:read("*a")
 	handle:close()
 	return tonumber(result)
